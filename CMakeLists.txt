@@ -1,5 +1,9 @@
-cmake_minimum_required(VERSION 3.10.0)
-project(imageprocex VERSION 0.1.0 LANGUAGES C CXX)
+cmake_minimum_required(VERSION 3.20)
+
+project(imageprocex)
+
+find_package(PNG CONFIG REQUIRED)
 
 add_executable(imageprocex main.cpp)
 
+target_link_libraries(imageprocex PRIVATE PNG::PNG)
