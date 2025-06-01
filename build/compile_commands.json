@@ -1,0 +1,8 @@
+[
+{
+  "directory": "C:/Users/Shikhar Dixit/Self Projects/ImageProcex/build",
+  "command": "C:\\msys64\\ucrt64\\bin\\c++.exe -g -o CMakeFiles\\imageprocex.dir\\main.cpp.obj -c \"C:\\Users\\Shikhar Dixit\\Self Projects\\ImageProcex\\main.cpp\"",
+  "file": "C:\\Users\\Shikhar Dixit\\Self Projects\\ImageProcex\\main.cpp",
+  "output": "CMakeFiles\\imageprocex.dir\\main.cpp.obj"
+}
+]
