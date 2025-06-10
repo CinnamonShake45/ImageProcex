@@ -37,7 +37,7 @@ std::string ImageReader::getImageType(const std::string& filePath){
     return "Can't process this format";
 }
 
-std::vector<uint8_t> readPNG(const char* filepath, int& imageWidth, int& imageHeight){
+std::vector<uint8_t> ImageReader::readPNG(const char* filepath, int& imageWidth, int& imageHeight){
     FILE *fp = fopen(filepath, "rb");
     if(!fp) 
         throw std::runtime_error("Failed to open file");
