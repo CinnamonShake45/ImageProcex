@@ -110,7 +110,7 @@ std::vector<uint8_t> ImageReader::read_png_file(const char* filepath, int& width
     std::vector<uint8_t> image_data(height  * rowBytes);
 
     std::vector<png_bytep> rowPointers(height);
-    for(int y = 0; y < height; y++)
+    for(size_t y = 0; y < height; y++)
         rowPointers[y] = &image_data[y * rowBytes];
     
         png_read_image(png_ptr ,rowPointers.data());
