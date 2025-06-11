@@ -39,7 +39,7 @@ std::string ImageReader::get_image_type(const char* filePath){
 
 std::vector<uint8_t> ImageReader::read_png_file(const char* filepath, int& width, int& height, int mode){
     
-    if(mode!=0 || mode!=1)
+    if(mode!=0 && mode!=1)
         throw std::invalid_argument("mode must be 0 (grayscale) or 1 (RGB)");
 
     FILE *fp = fopen(filepath, "rb");

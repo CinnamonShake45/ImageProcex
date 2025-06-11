@@ -7,7 +7,7 @@
 class ImageReader {
 public:
     static std::string get_image_type(const char* filePath);
-    std::vector<uint8_t> read_png_file(const char* filepath, int& imageWidth, int& imageHeight, int mode);
+    static std::vector<uint8_t> read_png_file(const char* filepath, int& imageWidth, int& imageHeight, int mode);
 };
 
 #endif
