@@ -1,5 +1,0 @@
-.vscode/
-build/
-CMakeUserPresets.json
-test-stuff
-main.cpp

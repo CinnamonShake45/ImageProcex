@@ -29,10 +29,10 @@ int main() {
         std::cout << error << std::endl;
     }
 
-    for(int y = 0; y < width; ++y){
-        for(int x = 0; x < height; ++x){
-            const uint8_t* pixel = &imagedata[(y * width + x) * 1];
-            std::cout << (int)pixel[0] << "\t";
+    for(int y = 0; y < height; ++y){
+        for(int x = 0; x < width; ++x){
+            const uint8_t pixel = imagedata[y * width + x];
+            std::cout << static_cast<int>(pixel)<< "\t";
         }
         std::cout << "\n";
     }
