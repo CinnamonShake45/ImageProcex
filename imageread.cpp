@@ -8,17 +8,17 @@
 
 #include <png.h>
 
-std::string ImageReader::getImageType(const std::string& filePath){
-    std::ifstream file(filePath, std::ios::binary);
+std::string ImageReader::get_image_type(const char* filePath){
+    FILE* fp = fopen(filePath, "rb");
 
-    if (!file) {
+    if (!fp) {
         return "Couldn't open file.";
     }
 
-    std::vector<unsigned char> header(8);
-    file.read(reinterpret_cast<char*>(header.data()),header.size());
+    unsigned char header[8];
+    size_t bytes_read = std::fread(header, 1, sizeof(header), fp);
 
-    if(file.gcount() < 4) {
+    if(bytes_read < 4) {
         return "File maybe corrupt, or not an image...";
     }
 
@@ -37,76 +37,87 @@ std::string ImageReader::getImageType(const std::string& filePath){
     return "Can't process this format";
 }
 
-std::vector<uint8_t> ImageReader::readPNG(const char* filepath, int& imageWidth, int& imageHeight){
+std::vector<uint8_t> ImageReader::read_png_file(const char* filepath, int& width, int& height, int mode){
+    
+    if(mode!=0 || mode!=1)
+        throw std::invalid_argument("mode must be 0 (grayscale) or 1 (RGB)");
+
     FILE *fp = fopen(filepath, "rb");
+
     if(!fp) 
         throw std::runtime_error("Failed to open file");
 
+    png_byte header[8];
 
-    png_byte pngHeader[8];
-    fread(pngHeader, 1, 8, fp);
-
-    bool is_png =!png_sig_cmp(pngHeader, 0, 8);
+    fread(header, 1, 8, fp);
+    bool is_png =!png_sig_cmp(header, 0, 8);
     if (!is_png){
         fclose(fp);
         throw std::runtime_error("Not a PNG file");
     }
     
-    png_structp pngReadPointer = png_create_read_struct(PNG_LIBPNG_VER_STRING, nullptr, nullptr, nullptr);
-    if(!pngReadPointer)
+    png_structp png_ptr = png_create_read_struct(PNG_LIBPNG_VER_STRING, nullptr, nullptr, nullptr);
+    if(!png_ptr)
         throw std::runtime_error("PNG read struct allocation error");
 
-
-    png_infop pngInfoPointer = png_create_info_struct(pngReadPointer);
-    if(!pngInfoPointer){
-        png_destroy_read_struct(&pngReadPointer, NULL, NULL);
+    png_infop info_ptr = png_create_info_struct(png_ptr);
+    if(!info_ptr){
+        png_destroy_read_struct(&png_ptr, NULL, NULL);
         throw std::runtime_error("PNG info struct allocation error");
     }
 
-    if(setjmp(png_jmpbuf(pngReadPointer))){
-        png_destroy_read_struct(&pngReadPointer, &pngInfoPointer, NULL);
+    if(setjmp(png_jmpbuf(png_ptr))){
+        png_destroy_read_struct(&png_ptr, &info_ptr, NULL);
         fclose(fp);
         throw std::runtime_error("Libpng read error");
     }
 
-    png_init_io(pngReadPointer, fp);
-    png_set_sig_bytes(pngReadPointer, 8);
-    png_read_info(pngReadPointer, pngInfoPointer);
+    png_init_io(png_ptr, fp);
+    png_set_sig_bytes(png_ptr, 8);
+    png_read_info(png_ptr, info_ptr);
 
-    imageWidth = png_get_image_width(pngReadPointer, pngInfoPointer);
-    imageHeight = png_get_image_height(pngReadPointer, pngInfoPointer);
-    png_byte imageColorType = png_get_color_type(pngReadPointer, pngInfoPointer);
-    png_byte imageBitDepth = png_get_bit_depth(pngReadPointer, pngInfoPointer);
+    width = png_get_image_width(png_ptr, info_ptr);
+    height = png_get_image_height(png_ptr, info_ptr);
+    png_byte color_type = png_get_color_type(png_ptr, info_ptr);
+    png_byte bit_depth = png_get_bit_depth(png_ptr, info_ptr);
 
-    if(imageBitDepth == 16)
-        png_set_strip_16(pngReadPointer);
+    if(bit_depth == 16)
+        png_set_strip_16(png_ptr);
     
-    if(imageColorType == PNG_COLOR_TYPE_PALETTE)
-        png_set_palette_to_rgb(pngReadPointer);
+    if(color_type == PNG_COLOR_TYPE_PALETTE)
+        png_set_palette_to_rgb(png_ptr);
 
-    if(imageColorType == PNG_COLOR_TYPE_GRAY && imageBitDepth < 8)
-        png_set_expand_gray_1_2_4_to_8(pngReadPointer);
+    if(color_type == PNG_COLOR_TYPE_GRAY && bit_depth < 8)
+        png_set_expand_gray_1_2_4_to_8(png_ptr);
 
-    if(png_get_valid(pngReadPointer, pngInfoPointer, PNG_INFO_tRNS))
-        png_set_tRNS_to_alpha(pngReadPointer);
+    if(png_get_valid(png_ptr, info_ptr, PNG_INFO_tRNS))
+        png_set_tRNS_to_alpha(png_ptr);
+
+    if(mode == 1) {
+        if(color_type == PNG_COLOR_TYPE_GRAY || color_type == PNG_COLOR_TYPE_GRAY_ALPHA)
+            png_set_gray_to_rgb(png_ptr);
+    } else {
+        if(color_type == PNG_COLOR_TYPE_RGB || color_type == PNG_COLOR_TYPE_RGB_ALPHA)
+            png_set_rgb_to_gray_fixed(png_ptr, 1, -1, -1);
+        
+    }
     
-    if(imageColorType == PNG_COLOR_TYPE_GRAY || imageColorType == PNG_COLOR_TYPE_GRAY_ALPHA)
-        png_set_gray_to_rgb(pngReadPointer);
+    png_set_strip_alpha(png_ptr);
 
-    png_set_strip_alpha(pngReadPointer);
+    png_read_update_info(png_ptr, info_ptr);
 
-    png_read_update_info(pngReadPointer, pngInfoPointer);
+    size_t rowBytes = png_get_rowbytes(png_ptr, info_ptr);
+    std::vector<uint8_t> image_data(height  * rowBytes);
 
-    size_t rowBytes = png_get_rowbytes(pngReadPointer, pngInfoPointer);
-    std::vector<uint8_t> imageData(imageHeight  * rowBytes);
-
-    std::vector<png_bytep> rowPointers(imageHeight);
-    for(int y = 0; y < imageHeight; y++)
-        rowPointers[y] = &imageData[y * rowBytes];
+    std::vector<png_bytep> rowPointers(height);
+    for(int y = 0; y < height; y++)
+        rowPointers[y] = &image_data[y * rowBytes];
     
-        png_read_image(pngReadPointer ,rowPointers.data());
-    png_destroy_read_struct(&pngReadPointer, &pngInfoPointer, NULL);
+        png_read_image(png_ptr ,rowPointers.data());
+    png_destroy_read_struct(&png_ptr, &info_ptr, NULL);
+
     fclose(fp);
-    return imageData;
+
+    return image_data;
 }
 
