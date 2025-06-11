@@ -29,6 +29,9 @@ int main() {
         std::cout << error << std::endl;
     }
 
+    std::cout << width << "\n";
+    std::cout << height;
+
     for(int y = 0; y < width; ++y){
         for(int x = 0; x < height; ++x){
             const uint8_t* pixel = &imagedata[(y * width + x) * 1];
