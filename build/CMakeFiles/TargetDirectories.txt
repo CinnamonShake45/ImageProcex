@@ -1,3 +1,0 @@
-C:/Users/Shikhar Dixit/Self Projects/ImageProcex/build/CMakeFiles/imageprocex.dir
-C:/Users/Shikhar Dixit/Self Projects/ImageProcex/build/CMakeFiles/ALL_BUILD.dir
-C:/Users/Shikhar Dixit/Self Projects/ImageProcex/build/CMakeFiles/ZERO_CHECK.dir
