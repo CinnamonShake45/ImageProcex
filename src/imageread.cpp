@@ -1,5 +1,5 @@
 #include "imageread.h"
-#include "image.h"
+#include "Image.h"
 #include <cstdint>
 #include <cstdio>
 #include <stdexcept>
@@ -20,7 +20,7 @@ std::string ImageReader::get_image_type(const char *filePath) {
   fclose(fp);
 
   if (bytes_read < 4) {
-    return "File maybe corrupt, or not an image...";
+    return "File maybe corrupt, or not an Image...";
   }
 
   if (header[0] == 0xFF && header[1] == 0xD8 && header[2] == 0xFF)
@@ -39,7 +39,7 @@ std::string ImageReader::get_image_type(const char *filePath) {
   return "Can't process this format";
 }
 
-image ImageReader::read_png(const char *filePath, std::uint8_t mode) {
+Image ImageReader::read_png(const char *filePath, std::uint8_t mode) {
   if (!filePath)
     throw std::invalid_argument("PNG reader: null file path");
 
@@ -129,9 +129,9 @@ image ImageReader::read_png(const char *filePath, std::uint8_t mode) {
     throw std::runtime_error("Unsupported PNG color type");
   }
 
-  image img(height, width, channels);
+  Image img(height, width, channels);
 
-  // read the image directly into the vector
+  // read the Image directly into the vector
 
   std::vector<png_bytep> rowPointers(height);
   const std::size_t rowBytes = width * channels;

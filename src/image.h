@@ -6,15 +6,15 @@
 #include <iterator>
 #include <vector>
 
-class image {
+class Image {
 public:
-  image();
-  image(std::size_t rows, std::size_t columns, std::size_t channels);
-  image(image &&) noexcept;
-  image(const image &);
-  image &operator=(image &&) noexcept;
-  image &operator=(const image &);
-  ~image();
+  Image();
+  Image(std::size_t rows, std::size_t columns, std::size_t channels);
+  Image(Image &&) noexcept;
+  Image(const Image &);
+  Image &operator=(Image &&) noexcept;
+  Image &operator=(const Image &);
+  ~Image();
 
   std::uint8_t &at(std::size_t row, std::size_t col, std::size_t ch);
   const uint8_t &at(std::size_t row, std::size_t c, std::size_t ch) const;
