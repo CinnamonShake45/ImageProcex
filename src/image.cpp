@@ -8,7 +8,7 @@ image::image() : rows(0), columns(0), channels(0) {};
 image::image(std::size_t rows, std::size_t columns, std::size_t channels)
     : rows(rows), columns(columns), channels(channels),
       data(rows * columns * channels) {
-  if (channels != 1 || channels != 3)
+  if (channels != 1 && channels != 3)
     throw std::invalid_argument(
         "image: channels can only be either 1 (grayscale) or 3 (color)");
 }
