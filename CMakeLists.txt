@@ -17,7 +17,8 @@ add_library(imageprocex
     src/Image.cpp
     src/imageread.cpp
     src/intensity.cpp
- "src/imagewrite.h")
+    src/imagewrite.cpp
+)
 
 target_include_directories(imageprocex
     PUBLIC
@@ -32,11 +33,11 @@ target_link_libraries(imageprocex
 # --------------------------------
 # Examples
 # --------------------------------
-add_executable(readpng_example
-    "examples/readpng_example.cpp"
- "src/imagewrite.h")
+add_executable(main_example
+    "examples/main_example.cpp"
+)
 
-target_link_libraries(readpng_example
+target_link_libraries(main_example
     PRIVATE
         imageprocex
 )
@@ -45,6 +46,6 @@ target_link_libraries(readpng_example
 # Optional: set working directory
 # so examples can find test_images
 # --------------------------------
-set_target_properties(readpng_example PROPERTIES
+set_target_properties(main_example PROPERTIES
     VS_DEBUGGER_WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
 )
