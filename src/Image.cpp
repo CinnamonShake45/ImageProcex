@@ -17,6 +17,7 @@ Image::~Image() = default;
 Image::Image(const Image &) = default;
 Image::Image(Image &&) noexcept = default;
 Image &Image::operator=(const Image &) = default;
+Image &Image::operator=(Image&&) = default;
 
 std::uint8_t &Image::at(std::size_t row, std::size_t col, std::size_t ch) {
   return data[index(row, col, ch)];
