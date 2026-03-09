@@ -12,7 +12,6 @@ public:
   Image(std::size_t rows, std::size_t columns, std::size_t channels);
   Image(Image &&) noexcept;
   Image(const Image &);
-  Image &operator=(Image &&) noexcept;
   Image &operator=(const Image &);
   ~Image();
 
