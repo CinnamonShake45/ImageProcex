@@ -22,11 +22,11 @@ add_library(imageprocex
 
 target_include_directories(imageprocex
     PUBLIC
-        ${PROJECT_SOURCE_DIR}/src
+        $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/src>
 )
 
 target_link_libraries(imageprocex
-    PRIVATE
+    PUBLIC
         PNG::PNG
 )
 
@@ -34,7 +34,7 @@ target_link_libraries(imageprocex
 # Examples
 # --------------------------------
 add_executable(main_example
-    "examples/main_example.cpp"
+    examples/main_example.cpp
 )
 
 target_link_libraries(main_example
@@ -42,20 +42,18 @@ target_link_libraries(main_example
         imageprocex
 )
 
-# Only build the playground if the file exists -- used for testing random bits and pieces of code
 if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/examples/playground.cpp")
     add_executable(playground 
-        "examples/playground.cpp"
+        examples/playground.cpp
     )
-    target_link_libraries(main_example
+    target_link_libraries(playground
         PRIVATE
             imageprocex
-)
+    )
 endif()
 
 # --------------------------------
-# Optional: set working directory
-# so examples can find test_images
+# Working directory
 # --------------------------------
 set_target_properties(main_example PROPERTIES
     VS_DEBUGGER_WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
