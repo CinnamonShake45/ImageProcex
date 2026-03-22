@@ -43,3 +43,8 @@ std::size_t Image::index(std::size_t row, std::size_t col,
     throw std::out_of_range("Image: index out of range");
   return (row * columns + col) * channels + ch;
 };
+
+auto Image::begin() noexcept { return data.begin(); }
+auto Image::end() noexcept { return data.end(); }
+auto Image::begin() const noexcept { return data.begin(); }
+auto Image::end() const noexcept { return data.end(); }

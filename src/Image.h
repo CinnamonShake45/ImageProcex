@@ -25,6 +25,13 @@ public:
   std::size_t getColumns() const noexcept;
   std::size_t getChannels() const noexcept;
 
+  // to make use of vector iterators for our image, useful for per-byte iterations
+  // strictly for simple intensity transforms
+  auto begin() noexcept;
+  auto end() noexcept;
+  auto begin() const noexcept;
+  auto end() const noexcept; 
+
 private:
   std::vector<std::uint8_t> data; // row, columns, channels format
   std::size_t rows;
