@@ -42,6 +42,17 @@ target_link_libraries(main_example
         imageprocex
 )
 
+# Only build the playground if the file exists -- used for testing random bits and pieces of code
+if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/examples/playground.cpp")
+    add_executable(playground 
+        "examples/playground.cpp"
+    )
+    target_link_libraries(main_example
+        PRIVATE
+            imageprocex
+)
+endif()
+
 # --------------------------------
 # Optional: set working directory
 # so examples can find test_images

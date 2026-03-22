@@ -3,3 +3,4 @@ build/
 CMakeUserPresets.json
 test-stuff
 .vs/
+.examples/playground.cpp
