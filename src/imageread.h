@@ -12,6 +12,9 @@ public:
   static Image read_png(const char *filePath, std::uint8_t mode); 
   static Image read_bmp(const char* filePath, std::uint8_t mode);
   static Image read_jpg(const char* filePath, std::uint8_t mode);
+
+private:
+    ImageReader() = delete;
 };
 
 #endif

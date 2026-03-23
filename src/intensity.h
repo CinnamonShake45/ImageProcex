@@ -10,6 +10,9 @@ public:
 	static Image::pixel log(Image::pixel px, int c);
 	static Image::pixel gamma(Image::pixel px, double c);
 	static Image::pixel threshold(Image::pixel px, int c, int g);
+
+private:
+	Intensity() = delete;
 };
 
 #endif
