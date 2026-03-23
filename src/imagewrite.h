@@ -7,7 +7,7 @@
 
 class ImageWriter {
 public:
-	static void write_png(const char* filePath, const Image& img);
+	static void write_png(const std::string& filePath, const Image& img);
 
 private:
 	ImageWriter() = delete;

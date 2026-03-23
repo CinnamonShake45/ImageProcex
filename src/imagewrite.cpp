@@ -1,46 +1,55 @@
 #include "imagewrite.h"
+
 #include <png.h>
 #include <cstdio>
 #include <stdexcept>
+#include <string>
+#include <memory>
+#include <cstdint>
 
-void ImageWriter::write_png(const char* filePath, const Image& img)
+// RAII wrapper for FILE*
+using FilePtr = std::unique_ptr<FILE, decltype(&std::fclose)>;
+
+void ImageWriter::write_png(const std::string& filePath, const Image& img)
 {
-    // creating a file
-    FILE* fp = fopen(filePath, "wb");
+    if (filePath.empty())
+        throw std::invalid_argument("PNG Writer: empty file path");
+
+    FilePtr fp(std::fopen(filePath.c_str(), "wb"), std::fclose);
     if (!fp)
         throw std::runtime_error("PNG Writer: Failed to open file for writing");
 
     png_structp png = png_create_write_struct(PNG_LIBPNG_VER_STRING, nullptr, nullptr, nullptr);
     if (!png)
-    {
-        fclose(fp);
         throw std::runtime_error("PNG Writer: png_create_write_struct failed");
-    }
 
     png_infop info = png_create_info_struct(png);
-    if (!info)
-    {
+    if (!info) {
         png_destroy_write_struct(&png, nullptr);
-        fclose(fp);
         throw std::runtime_error("png_create_info_struct failed");
     }
 
-    if (setjmp(png_jmpbuf(png)))
-    {
-        png_destroy_write_struct(&png, &info);
-        fclose(fp);
+    // RAII guard for libpng cleanup
+    struct PngGuard {
+        png_structp png;
+        png_infop info;
+        ~PngGuard() {
+            if (png)
+                png_destroy_write_struct(&png, &info);
+        }
+    } guard{ png, info };
+
+    if (setjmp(png_jmpbuf(png))) {
         throw std::runtime_error("Error during PNG creation");
     }
 
-    png_init_io(png, fp);
+    png_init_io(png, fp.get());
 
-    // initializing important image info
     int width = img.getColumns();
     int height = img.getRows();
     int channels = img.getChannels();
 
     int color_type;
-
     if (channels == 1)
         color_type = PNG_COLOR_TYPE_GRAY;
     else if (channels == 3)
@@ -62,19 +71,14 @@ void ImageWriter::write_png(const char* filePath, const Image& img)
 
     png_write_info(png, info);
 
-    // writing the image data directly into the png file
-    const uint8_t* data = img.rawpixels();
+    const std::uint8_t* data = img.rawpixels();
+    std::size_t row_bytes = width * channels;
 
-    size_t row_bytes = width * channels;
-
-    for (int y = 0; y < height; y++)
+    for (int y = 0; y < height; ++y)
     {
-        png_write_row(png, (png_bytep)(data + y * row_bytes));
+        png_write_row(png,
+            reinterpret_cast<png_bytep>(const_cast<std::uint8_t*>(data + y * row_bytes)));
     }
 
     png_write_end(png, nullptr);
-
-    png_destroy_write_struct(&png, &info);
-
-    fclose(fp);
 }
