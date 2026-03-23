@@ -5,7 +5,7 @@
 
 Image::Image() : rows(0), columns(0), channels(0) {};
 
-Image::Image(std::size_t rows, std::size_t columns, std::size_t channels)
+Image::Image(Image::size rows, Image::size columns, Image::size channels)
     : rows(rows), columns(columns), channels(channels),
       data(rows * columns * channels) {
   if (channels != 1 && channels != 3)
@@ -18,33 +18,33 @@ Image::Image(const Image &) = default;
 Image::Image(Image &&) noexcept = default;
 Image &Image::operator=(const Image &) = default;
 
-std::uint8_t &Image::at(std::size_t row, std::size_t col, std::size_t ch) {
+Image::pixel &Image::at(Image::size row, Image::size col, Image::size ch) {
   return data[index(row, col, ch)];
 }
 
-const std::uint8_t &Image::at(std::size_t row, std::size_t col,
-                              std::size_t ch) const {
+const Image::pixel &Image::at(Image::size row, Image::size col,
+                              Image::size ch) const {
   return data[index(row, col, ch)];
 }
 
-std::uint8_t *Image::rawpixels() noexcept { return data.data(); }
+Image::pixel *Image::rawpixels() noexcept { return data.data(); }
 
-const std::uint8_t *Image::rawpixels() const noexcept { return data.data(); }
+const Image::pixel *Image::rawpixels() const noexcept { return data.data(); }
 
-std::size_t Image::getRows() const noexcept { return rows; }
+Image::size Image::getRows() const noexcept { return rows; }
 
-std::size_t Image::getColumns() const noexcept { return columns; }
+Image::size Image::getColumns() const noexcept { return columns; }
 
-std::size_t Image::getChannels() const noexcept { return channels; }
+Image::size Image::getChannels() const noexcept { return channels; }
 
-std::size_t Image::index(std::size_t row, std::size_t col,
-                         std::size_t ch) const {
+Image::size Image::index(Image::size row, Image::size col,
+                         Image::size ch) const {
   if (row >= rows || col >= columns || ch >= channels)
     throw std::out_of_range("Image: index out of range");
   return (row * columns + col) * channels + ch;
 };
 
-auto Image::begin() noexcept { return data.begin(); }
-auto Image::end() noexcept { return data.end(); }
-auto Image::begin() const noexcept { return data.begin(); }
-auto Image::end() const noexcept { return data.end(); }
+Image::iterator Image::begin() noexcept { return data.begin(); }
+Image::iterator Image::end() noexcept { return data.end(); }
+Image::const_iterator Image::begin() const noexcept { return data.begin(); }
+Image::const_iterator Image::end() const noexcept { return data.end(); }

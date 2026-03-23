@@ -8,36 +8,41 @@
 
 class Image {
 public:
-  Image();
-  Image(std::size_t rows, std::size_t columns, std::size_t channels);
-  Image(Image &&) noexcept;
-  Image(const Image &);
-  Image &operator=(const Image &);
-  ~Image();
+	using iterator = std::vector<std::uint8_t>::iterator;
+	using const_iterator = std::vector<std::uint8_t>::const_iterator;
+	using pixel = std::uint8_t;
+	using size = std::size_t;
 
-  std::uint8_t &at(std::size_t row, std::size_t col, std::size_t ch);
-  const uint8_t &at(std::size_t row, std::size_t c, std::size_t ch) const;
+	Image();
+	Image(size rows, size columns, size channels);
+	Image(Image &&) noexcept;
+	Image(const Image &);
+	Image &operator=(const Image &);
+	~Image();
 
-  std::uint8_t *rawpixels() noexcept;
-  const std::uint8_t *rawpixels() const noexcept;
+	pixel &at(size row, size col, size ch);
+	const pixel &at(size row, size c, size ch) const;
 
-  std::size_t getRows() const noexcept;
-  std::size_t getColumns() const noexcept;
-  std::size_t getChannels() const noexcept;
+	pixel *rawpixels() noexcept;
+	const pixel *rawpixels() const noexcept;
 
-  // to make use of vector iterators for our image, useful for per-byte iterations
-  // strictly for simple intensity transforms
-  auto begin() noexcept;
-  auto end() noexcept;
-  auto begin() const noexcept;
-  auto end() const noexcept; 
+	size getRows() const noexcept;
+	size getColumns() const noexcept;
+	size getChannels() const noexcept;
+
+	// to make use of vector iterators for our image, useful for per-byte iterations
+	// strictly for simple intensity transforms
+	iterator begin() noexcept;
+	iterator end() noexcept;
+	const_iterator begin() const noexcept;
+	const_iterator end() const noexcept; 
 
 private:
-  std::vector<std::uint8_t> data; // row, columns, channels format
-  std::size_t rows;
-  std::size_t columns;
-  std::size_t channels;
-  std::size_t index(std::size_t row, std::size_t col, std::size_t ch) const;
+	std::vector<std::uint8_t> data; // row, columns, channels format
+	size rows;
+	size columns;
+	size channels;
+	size index(size row, size col, size ch) const;
 };
 
 #endif /* IMAGE_H */
