@@ -46,7 +46,7 @@ std::string ImageReader::get_image_type(const std::string& filePath) {
 }
 
 // PNG reader
-Image ImageReader::read_png(const std::string& filePath, std::uint8_t mode) {
+Image ImageReader::read_png(const std::string& filePath, Mode mode) {
     if (filePath.empty())
         throw std::invalid_argument("PNG reader: empty file path");
 
@@ -104,10 +104,18 @@ Image ImageReader::read_png(const std::string& filePath, std::uint8_t mode) {
     if (png_get_valid(png, info, PNG_INFO_tRNS))
         png_set_tRNS_to_alpha(png);
 
-    if (mode == 0 &&
+    // Convert color type according to mode requested
+    // reading RGB as GRAY
+    if (mode == Mode::GRAY &&
         (colorType == PNG_COLOR_TYPE_RGB ||
             colorType == PNG_COLOR_TYPE_RGB_ALPHA)) {
         png_set_rgb_to_gray_fixed(png, 1, -1, -1);
+    }
+    // reading GRAY as RGB 
+    else if (mode == Mode::RGB && 
+            (colorType == PNG_COLOR_TYPE_GRAY || 
+             colorType == PNG_COLOR_TYPE_GRAY_ALPHA)) {
+        png_set_gray_to_rgb(png);
     }
 
     png_read_update_info(png, info);
