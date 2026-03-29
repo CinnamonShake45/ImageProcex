@@ -14,6 +14,7 @@ public:
         return out;
     }
 
+	static Image to_grayscale(const Image& img);
 private:
     Transforms() = delete;
 };
