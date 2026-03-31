@@ -105,11 +105,11 @@ Image ImageReader::read_png(const std::string& filePath, Mode mode) {
         png_set_tRNS_to_alpha(png);
 
     // Convert color type according to mode requested
-    // reading RGB as GRAY
+    // reading RGB (or PALETTE, which gets converted to RGB) as GRAY
     if (mode == Mode::GRAY &&
         (colorType == PNG_COLOR_TYPE_RGB ||
-            colorType == PNG_COLOR_TYPE_RGB_ALPHA)) {
-        png_set_rgb_to_gray_fixed(png, 1, -1, -1);
+            colorType == PNG_COLOR_TYPE_RGB_ALPHA || colorType == PNG_COLOR_TYPE_PALETTE)) {
+        png_set_rgb_to_gray(png, 1, -1, -1);
     }
     // reading GRAY as RGB 
     else if (mode == Mode::RGB && 
