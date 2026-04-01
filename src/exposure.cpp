@@ -1,11 +1,6 @@
-#include <algorithm>
 #include <numeric>
-#include <iostream>
-#include <cmath>
 
 #include "exposure.h"
-#include "transforms.h"
-
 
 void Exposure::get_bin_data(int bin_width, int& bin_count, std::vector<uint8_t>& bins,
     std::vector<float>& bin_centers) {
@@ -15,6 +10,7 @@ void Exposure::get_bin_data(int bin_width, int& bin_count, std::vector<uint8_t>&
         bin_centers = std::vector<float>(256);
         std::iota(bin_centers.begin(), bin_centers.end(), 0);
         bins = get_bins(bin_width, bin_count);
+        bin_count = 256;
         return;
     }
 
@@ -30,11 +26,10 @@ void Exposure::get_bin_data(int bin_width, int& bin_count, std::vector<uint8_t>&
     return;
 }
 
-// DONT USE WHEN bin_width < 2, handle that in calling function (eg. get_histgram())
+// DONT USE DIRECTLY! Helper for get_bin_data
 std::vector<uint8_t> Exposure::get_bins(int bin_width, int& bin_count) {
     std::vector<uint8_t> bins;
 
-    // EDGE CASE, DON'T USE THIS
     if (bin_width < 2 ) {
         bins.reserve(512);
         for (int i = 0; i < 256; i++) {
@@ -75,52 +70,79 @@ std::vector<uint8_t> Exposure::get_bins(int bin_width, int& bin_count) {
 
     return bins;
 }
-
+ 
 Histogram<int> Exposure::get_histogram(const Image& img, int bin_width, int selected_channel) {
-    int bin_count = 0;
 
-    // Validate bin_width
+    int bin_count = 0;
+    
+    // Validate bin_width - handle bad input for bin_width
+    // if less than 1, make it 1
     if (bin_width < 1) {
         bin_count = 256;
         bin_width = 1;
     }
-    if (bin_width > 256)
+    // if greater than 256, make it 256
+    if (bin_width > 256){
         bin_width = 256;
+        bin_count = 1;
+    }
 
+    if (selected_channel > 3 || selected_channel < 0)
+        selected_channel = 0;
 
+    size_t row_count = img.getRows(), column_count = img.getColumns(), channel_count = img.getChannels();
 
-}
-/*
+    if (img.getChannels() == 1) {
 
-Histogram<int> Exposure::get_histogram(const Image& img, int bin_width, int selected_channel) {
-    // Validate bin_width
-    if (bin_width <= 0) bin_width = 1;
-    int bin_count = 256;
-    if (bin_width >= 256) bin_count = 1;
+    }
 
-    size_t rows = img.getRows();
-    size_t cols = img.getColumns();
-    size_t img_channels = img.getChannels();
+    std::vector<int> data;
+    std::vector<float> bin_centers;
+    std::vector<uint8_t> bins;
 
-    std::vector<int> data(bin_count);
+    get_bin_data(bin_width, bin_count, bins, bin_centers);
 
-    if (bin_width < 2) {
-        if (selected_channel == 0) {
-            for (auto& px : img)
+    data = std::vector<int>(bin_count, 0);
+
+    if (selected_channel == 0)  { 
+        if (bin_width < 2) {
+            for(auto& px : img){
                 data[px]++;
+            }
         }
-        // selected_channel = 1 : Red, 2: Green, 3: Blue
-        else { 
-            
+        else {
+            for (auto& px : img) {
+                for (int i = 0, b = 0; i < bin_count; i++, b++) {
+                    if(px >= bins[b] && px <= bins[++b])
+                        data[i]++;
+                }
+            }
         }
     }
 
-    else if (bin_width > 2){
-        auto bins = get_bins(bin_width, bin_count);
-
+    if (selected_channel > 0) {
+        int channel = selected_channel - 1;
+        if (bin_width < 2) {
+            for (size_t r = 0; r < row_count; r++) {
+                for (size_t c = 0; c < row_count; c++) {
+                    data[img.at(r, c, channel)]++;
+                }
+            }
+        }
+        else {
+            for (size_t r = 0; r < row_count; r++) {
+                for (size_t c = 0; c < row_count; c++) {
+                    for(int i = 0, b = 0; i < bin_count; i++, b++) {
+                        auto px = img.at(r, c, channel);
+                        if (px >= bins[b] && px <= bins[++b]) {
+                            data[i]++;
+                        }
+                    }
+                }
+            }
+        }
     }
 
-    auto bin_centers = get_bin_centers(bin_width);
-
-    return {bin_count, std::move(data), std::move(bin_centers)};
-} */
+    return { bin_count, std::move(data), std::move(bin_centers)};      
+} 
+ 

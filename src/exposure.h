@@ -13,10 +13,12 @@ struct Histogram{
 
 class Exposure{
 public:
-    /* Helper for histogram binning. To be used ONLY when bin_width > 1 */
     static void get_bin_data(int bin_width, int& bin_count, std::vector<uint8_t>& bins, std::vector<float>& bin_centers);
+    /* Helper for histogram binning. DONT USE DIRECTLY > 1 */
     static std::vector<uint8_t> get_bins(int bin_width, int& bin_count);
-    /* channel_selector: 0 for Flattened, 1 for Red, 2 for Green, 3 for Blue */
+    /* channel_selector: 0 for Flattened, 1 for Red, 2 for Green, 3 for Blue 
+       if image is GRAY, then channel_selector value is ignored
+    */
     static Histogram<int> get_histogram(const Image& img, int bin_width, int selected_channel); 
     static Histogram<float> normalize(const Histogram<int>& hist);
     static Image equalize(const Image& img);
