@@ -18,6 +18,8 @@ add_library(imageprocex
     src/imageread.cpp
     src/intensity.cpp
     src/imagewrite.cpp
+    src/transforms.cpp
+    src/exposure.cpp
 )
 
 target_include_directories(imageprocex

@@ -4,6 +4,12 @@
 #include "Image.h"
 #include "intensity.h"
 
+enum class Channel {
+    RED,
+    GREEN,
+    BLUE
+};
+
 class Transforms {
 public:
     template<typename Func>
@@ -14,6 +20,7 @@ public:
         return out;
     }
 
+    static Image extract_Channel(const Image& img, Channel ch);
 	static Image to_grayscale(const Image& img);
 private:
     Transforms() = delete;

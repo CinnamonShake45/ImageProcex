@@ -55,7 +55,7 @@ int main(int argc, char* argv[])
         if (imgType != "PNG")
             throw std::runtime_error("Currently only PNG supported");
 
-        Image img = ImageReader::read_png(inputPath, 1);
+        Image img = ImageReader::read_png(inputPath, Mode::GRAY);
 
         imgutils::print_info(img);
 
